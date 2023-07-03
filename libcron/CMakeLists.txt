@@ -8,7 +8,7 @@ option(LIBCRON_DEACTIVATE_ITERATOR_DEBUGGING "Build with iterator-debugging (MSV
 
 if( MSVC )
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-	
+
 	if (LIBCRON_DEACTIVATE_ITERATOR_DEBUGGING)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_HAS_ITERATOR_DEBUGGING=0")
 	endif()
@@ -20,11 +20,13 @@ add_library(${PROJECT_NAME}
 		include/libcron/Cron.h
 		include/libcron/CronClock.h
 		include/libcron/CronData.h
+		include/libcron/CronLock.h
 		include/libcron/CronRandomization.h
 		include/libcron/CronSchedule.h
 		include/libcron/DateTime.h
 		include/libcron/Task.h
 		include/libcron/TimeTypes.h
+		src/Cron.cpp
 		src/CronClock.cpp
 		src/CronData.cpp
 		src/CronRandomization.cpp

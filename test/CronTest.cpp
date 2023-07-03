@@ -25,7 +25,7 @@ SCENARIO("Adding a task")
 {
     GIVEN("A Cron instance with no task")
     {
-        Cron<> c;
+        Cron c;
         auto expired = false;
 
         THEN("Starts with no task")
@@ -66,7 +66,7 @@ SCENARIO("Adding a task that expires in the future")
     {
         auto expired = false;
 
-        Cron<> c;
+        Cron c;
         REQUIRE(c.add_schedule("A task",
                                create_schedule_expiring_in(c.get_clock().now(), hours{0}, minutes{0}, seconds{3}),
                                [&expired](auto&)
@@ -109,7 +109,7 @@ SCENARIO("Get delay using Task-Information")
         auto _2_second_expired = 0;
         auto _delay = std::chrono::system_clock::duration(-1s);
 
-        Cron<> c;
+        Cron c;
         REQUIRE(c.add_schedule("Two",
                                "*/2 * * * * ?",
                                [&_2_second_expired, &_delay](auto& i)
@@ -152,7 +152,7 @@ SCENARIO("Task priority")
         auto _5_second_expired = 0;
 
 
-        Cron<> c;
+        Cron c;
         REQUIRE(c.add_schedule("Five",
                                create_schedule_expiring_in(c.get_clock().now(), hours{0}, minutes{0}, seconds{5}),
                                [&_5_second_expired](auto&)
@@ -271,7 +271,7 @@ SCENARIO("Clock changes")
     GIVEN("A Cron instance with a single task expiring every hour")
     {
         std::shared_ptr<TestClock> testClock(std::make_shared<TestClock>());
-        Cron<> c{testClock};
+        Cron c{testClock};
         auto& clock = *testClock;
 
         // Midnight
@@ -348,7 +348,7 @@ SCENARIO("Clock changes")
 SCENARIO("Multiple ticks per second")
 {
     std::shared_ptr<TestClock> testClock(std::make_shared<TestClock>());
-    Cron<> c{testClock};
+    Cron c{testClock};
     auto& clock = *testClock;
 
     auto now = sys_days{2018_y / 05 / 05};
@@ -388,7 +388,7 @@ SCENARIO("Tasks can be added and removed from the scheduler")
 {
     GIVEN("A Cron instance with no task")
     {
-        Cron<> c;
+        Cron c;
         auto expired = false;
 
         WHEN("Adding 5 tasks that runs every second")

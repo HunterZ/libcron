@@ -18,7 +18,7 @@ void test(const char* const random_schedule, bool expect_failure = false)
         auto res = cr.parse(random_schedule);
         auto schedule = std::get<1>(res);
 
-        Cron<> cron;
+        Cron cron;
 
         if(expect_failure)
         {
