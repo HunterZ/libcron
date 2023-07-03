@@ -2,16 +2,14 @@
 
 #include <chrono>
 #include <map>
-#include <memory>
-#include <mutex>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
-#include <vector>
-#include "Task.h"
-#include "CronClock.h"
-#include "CronLock.h"
-#include "TaskQueue.h"
+#include <tuple>
+
+#include "libcron/CronClock.h"
+#include "libcron/CronLock.h"
+#include "libcron/Task.h"
+#include "libcron/TaskQueue.h"
 
 namespace libcron
 {

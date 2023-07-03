@@ -1,12 +1,11 @@
 #pragma once
 
-#include <map>
 #include <memory>
-#include <stdexcept>
-#include <unordered_map>
+#include <string>
 #include <vector>
-#include "CronLock.h"
-#include "Task.h"
+
+#include "libcron/CronLock.h"
+#include "libcron/Task.h"
 
 namespace libcron
 {
@@ -14,112 +13,86 @@ namespace libcron
     {
         public:
 
+            // instantiate a task queue with the given lock, or with a NullLock
             explicit TaskQueue(
                 std::shared_ptr<ICronLock> lock = std::make_shared<NullLock>()
-            )
-                : lockSptr(lock)
-            {
-                if (!lockSptr)
-                {
-                    throw std::invalid_argument("TaskQueue(): lock is null");
-                }
-            }
+            );
 
-            const std::vector<Task>& get_tasks() const
-            {
-                return c;
-            }
+            // get read-only reference to task list
+            // this method is NOT thread safe
+            // return value should not be assumed valid beyond the life of the
+            //  TaskQueue instance that provided it
+            const std::vector<Task>& get_tasks() const;
 
-            std::vector<Task>& get_tasks()
-            {
-                return c;
-            }
+            // get a mutable reference to task list
+            // this method is NOT thread safe
+            // return value should not be assumed valid beyond the life of the
+            //  TaskQueue instance that provided it
+            std::vector<Task>& get_tasks();
 
-            size_t size() const noexcept
-            {
-                return c.size();
-            }
+            // return number of tasks in the queue
+            // this method is NOT thread safe
+            size_t size() const noexcept;
 
-            bool empty() const noexcept
-            {
-                return c.empty();
-            }
+            // return whether task queue is empty
+            // this method is NOT thread safe
+            bool empty() const noexcept;
 
-            void push(Task& t)
-            {
-                c.push_back(std::move(t));
-            }
+            // push a task onto the queue
+            // this will likely copy-construct a new instance from the given one
+            // does not sort the queue
+            // this method is NOT thread safe
+            void push(Task& t);
 
-            void push(Task&& t)
-            {
-                c.push_back(std::move(t));
-            }
+            // move a task onto the queue
+            // this will likely move-construct a new instance from the given one
+            // does not sort the queue
+            // this method is NOT thread safe
+            void push(Task&& t);
 
-            void push(std::vector<Task>& tasks_to_insert)
-            {
-                c.reserve(c.size() + tasks_to_insert.size());
-                c.insert(c.end(), std::make_move_iterator(tasks_to_insert.begin()), std::make_move_iterator(tasks_to_insert.end()));
-            }
+            // move an ordered sequence of tasks onto the queue
+            // does not sort the queue
+            // this method is NOT thread safe
+            void push(std::vector<Task>& tasks_to_insert);
 
-            const Task& top() const
-            {
-                return c[0];
-            }
+            // returns a read-only reference to the first queued task
+            // does not check for the existence of said task
+            // this method is NOT thread safe
+            const Task& top() const;
 
-            Task& at(const size_t i)
-            {
-                return c[i];
-            }
+            // returns a mutable reference to the task at the given index
+            // does not check for the existence of said task
+            // this method is NOT thread safe
+            Task& at(const size_t i);
 
-            void sort()
-            {
-                std::sort(c.begin(), c.end(), std::less<>());
-            }
+            // sort queued tasks
+            // sort order is determined by Task's operator<() method
+            // this method is NOT thread safe
+            void sort();
 
-            void clear()
-            {
-                lockSptr->lock();
-                c.clear();
-                lockSptr->unlock();
-            }
+            // clear the queue, destroying all contained tasks
+            // this method IS thread safe
+            void clear();
 
-            void remove(Task& to_remove)
-            {
-                auto it = std::find_if(c.begin(), c.end(), [&to_remove] (const Task& to_compare) {
-                                    return to_remove.get_name() == to_compare;
-                                    });
+            // remove first copy of the given task from the queue
+            // equivalency is determined by Task's operator==(string, Task)
+            //  method
+            // this method is NOT thread safe
+            void remove(Task& to_remove);
 
-                if (it != c.end())
-                {
-                    c.erase(it);
-                }
-            }
+            // remove first task with the given name from the queue
+            // equivalency is determined by Task's operator==(string, Task)
+            //  method
+            // this method IS thread safe
+            void remove(const std::string& to_remove);
 
-            void remove(std::string to_remove)
-            {
-                lockSptr->lock();
-                auto it = std::find_if(c.begin(), c.end(), [&to_remove] (const Task& to_compare) {
-                                    return to_remove == to_compare;
-                                    });
-                if (it != c.end())
-                {
-                    c.erase(it);
-                }
+            // block other lock_queue() or thread safe method calls until the
+            //  caller subsequently calls release_queue()
+            void lock_queue();
 
-                lockSptr->unlock();
-            }
-
-            void lock_queue()
-            {
-                /* Do not allow to manipulate the Queue */
-                lockSptr->lock();
-            }
-
-            void release_queue()
-            {
-                /* Allow Access to the Queue Manipulating-Functions */
-                lockSptr->unlock();
-            }
+            // release lock so that other lock_queue() or thread safe method
+            //  calls can occur without being (further) blocked
+            void release_queue();
 
         private:
 

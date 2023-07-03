@@ -25,13 +25,15 @@ add_library(${PROJECT_NAME}
 		include/libcron/CronSchedule.h
 		include/libcron/DateTime.h
 		include/libcron/Task.h
+		include/libcron/TaskQueue.h
 		include/libcron/TimeTypes.h
 		src/Cron.cpp
 		src/CronClock.cpp
 		src/CronData.cpp
 		src/CronRandomization.cpp
 		src/CronSchedule.cpp
-		src/Task.cpp)
+		src/Task.cpp
+		src/TaskQueue.cpp)
 
 target_include_directories(${PROJECT_NAME}
 		PRIVATE ${CMAKE_CURRENT_LIST_DIR}/externals/date/include

@@ -1,12 +1,13 @@
-#include <libcron/CronRandomization.h>
+#include "libcron/CronRandomization.h"
 
 #include <regex>
 #include <map>
 #include <array>
 #include <algorithm>
 #include <iterator>
-#include <libcron/TimeTypes.h>
-#include <libcron/CronData.h>
+
+#include "libcron/TimeTypes.h"
+#include "libcron/CronData.h"
 
 namespace libcron
 {

@@ -3,8 +3,9 @@
 #include <functional>
 #include <chrono>
 #include <utility>
-#include "CronData.h"
-#include "CronSchedule.h"
+
+#include "libcron/CronData.h"
+#include "libcron/CronSchedule.h"
 
 namespace libcron
 {

@@ -45,7 +45,7 @@ namespace libcron
       Task t{std::move(name), CronSchedule{cron}, work };
       if (t.calculate_next(clockSptr->now()))
       {
-        tasks.push(t);
+        tasks.push(std::move(t));
         tasks.sort();
       }
       tasks.release_queue();

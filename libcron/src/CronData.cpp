@@ -1,5 +1,6 @@
-#include <date/date.h>
 #include "libcron/CronData.h"
+
+#include <date/date.h>
 
 using namespace date;
 
@@ -31,7 +32,7 @@ namespace libcron
         {
             c = found->second;
         }
-        
+
         return c;
     }
 

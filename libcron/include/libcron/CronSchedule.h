@@ -1,6 +1,5 @@
 #pragma once
 
-#include "libcron/CronData.h"
 #include <chrono>
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -11,6 +10,7 @@
 #pragma warning(pop)
 #endif
 
+#include "libcron/CronData.h"
 #include "libcron/DateTime.h"
 
 namespace libcron
