@@ -270,8 +270,9 @@ SCENARIO("Clock changes")
 {
     GIVEN("A Cron instance with a single task expiring every hour")
     {
-        Cron<TestClock> c{};
-        auto& clock = c.get_clock();
+        std::shared_ptr<TestClock> testClock(std::make_shared<TestClock>());
+        Cron<> c{testClock};
+        auto& clock = *testClock;
 
         // Midnight
         clock.set(sys_days{2018_y / 05 / 05});
@@ -346,8 +347,9 @@ SCENARIO("Clock changes")
 
 SCENARIO("Multiple ticks per second")
 {
-    Cron<TestClock> c{};
-    auto& clock = c.get_clock();
+    std::shared_ptr<TestClock> testClock(std::make_shared<TestClock>());
+    Cron<> c{testClock};
+    auto& clock = *testClock;
 
     auto now = sys_days{2018_y / 05 / 05};
     clock.set(now);

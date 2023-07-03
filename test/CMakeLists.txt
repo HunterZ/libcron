@@ -8,7 +8,7 @@ option(LIBCRON_DEACTIVATE_ITERATOR_DEBUGGING "Build with iterator-debugging (MSV
 
 if( MSVC )
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-        
+
 	if (LIBCRON_DEACTIVATE_ITERATOR_DEBUGGING)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_HAS_ITERATOR_DEBUGGING=0")
 	endif()
@@ -42,3 +42,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/out"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/out"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/out")
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/externals/Catch2/contrib)
+include(CTest)
+include(Catch)
+catch_discover_tests(${PROJECT_NAME})
