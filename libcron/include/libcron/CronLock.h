@@ -4,26 +4,27 @@
 
 namespace libcron
 {
-  class ICronLock
-  {
-    public:
-      virtual void lock() = 0;
-      virtual void unlock() = 0;
-  };
+class ICronLock
+{
+public:
+  virtual void lock()   = 0;
+  virtual void unlock() = 0;
+};
 
-  class NullLock : public ICronLock
-  {
-    public:
-      void lock() override {}
-      void unlock() override {}
-  };
+class NullLock : public ICronLock
+{
+public:
+  void lock() override {}
+  void unlock() override {}
+};
 
-  class Locker : public ICronLock
-  {
-    public:
-      void lock() override { m.lock(); }
-      void unlock() override { m.unlock(); }
-    private:
-      std::recursive_mutex m{};
-  };
-}
+class Locker : public ICronLock
+{
+public:
+  void lock() override { m.lock(); }
+  void unlock() override { m.unlock(); }
+
+private:
+  std::recursive_mutex m{};
+};
+}  // namespace libcron
