@@ -33,20 +33,19 @@ std::unordered_map<std::string, CronData> CronData::cache{};
 
 CronData CronData::create(const std::string& cron_expression)
 {
-  CronData    c;
   const auto& found{cache.find(cron_expression)};
 
   if (found == cache.end())
   {
-    c.parse(cron_expression);
-    cache.insert({cron_expression, c});
+    CronData c(cron_expression);
+    if (c.is_valid()) { cache.insert({cron_expression, c}); }
+    return c;
   }
-  else { c = found->second; }
 
-  return c;
+  return found->second;
 }
 
-void CronData::parse(const std::string& cron_expression)
+CronData::CronData(const std::string& cron_expression)
 {
   // First, check for "convenience scheduling" using @yearly, @annually,
   // @monthly, @weekly, @daily or @hourly.

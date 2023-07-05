@@ -63,9 +63,9 @@ public:
   static std::string& replace_string_name_with_numeric(std::string& s);
 
 private:
-  CronData() = default;
+  CronData() = delete;
 
-  void parse(const std::string& cron_expression);
+  CronData(const std::string& cron_expression);
 
   template<typename T>
   bool validate_numeric(const std::string& s, std::set<T>& numbers);
