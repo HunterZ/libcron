@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <regex>
 #include <set>
 #include <string>
@@ -16,11 +17,9 @@ public:
   static constexpr int         NUMBER_OF_LONG_MONTHS = 7;
   static const libcron::Months months_with_31[NUMBER_OF_LONG_MONTHS];
 
-  static CronData create(const std::string& cron_expression);
+  static std::optional<CronData> create(const std::string& cron_expression);
 
   CronData(const CronData&) = default;
-
-  bool is_valid() const { return valid; }
 
   const std::set<Seconds>& get_seconds() const { return seconds; }
 
@@ -107,7 +106,6 @@ private:
   std::set<DayOfMonth> day_of_month{};
   std::set<Months>     months{};
   std::set<DayOfWeek>  day_of_week{};
-  bool                 valid = false;
 
   static const std::vector<std::string>            month_names;
   static const std::vector<std::string>            day_names;

@@ -1,6 +1,7 @@
 #include "libcron/CronData.h"
 
 #include <date/date.h>
+#include <stdexcept>
 
 using namespace date;
 
@@ -31,15 +32,22 @@ const std::vector<std::string> CronData::day_names{
   "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
 std::unordered_map<std::string, CronData> CronData::cache{};
 
-CronData CronData::create(const std::string& cron_expression)
+std::optional<CronData> CronData::create(const std::string& cron_expression)
 {
   const auto& found{cache.find(cron_expression)};
 
   if (found == cache.end())
   {
-    CronData c(cron_expression);
-    if (c.is_valid()) { cache.insert({cron_expression, c}); }
-    return c;
+    try
+    {
+      CronData c(cron_expression);
+      cache.insert({cron_expression, c});
+      return c;
+    }
+    catch (const std::invalid_argument& e)
+    {
+      return {};
+    }
   }
 
   return found->second;
@@ -64,6 +72,7 @@ CronData::CronData(const std::string& cron_expression)
 
   std::smatch match;
 
+  bool valid{false};
   if (std::regex_match(expression.begin(), expression.end(), match, split))
   {
     valid = validate_numeric<Seconds>(match[1], seconds);
@@ -74,6 +83,12 @@ CronData::CronData(const std::string& cron_expression)
     valid &= validate_literal<DayOfWeek>(match[6], day_of_week, day_names);
     valid &= check_dom_vs_dow(match[4], match[6]);
     valid &= validate_date_vs_months();
+  }
+
+  if (!valid)
+  {
+    throw std::invalid_argument(
+      "CronData(): cron_expression failed validation");
   }
 }
 

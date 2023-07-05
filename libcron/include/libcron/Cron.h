@@ -91,15 +91,15 @@ std::tuple<bool, std::string, std::string> Cron::add_schedule(
   {
     const auto& [name, schedule] = *it;
     auto cron                    = CronData::create(schedule);
-    is_valid                     = cron.is_valid();
-    if (!is_valid)
+    if (!cron)
     {
+      is_valid = false;
       std::get<1>(res) = name;
       std::get<2>(res) = schedule;
       break;
     }
 
-    Task t{std::move(name), CronSchedule{cron}, work};
+    Task t{std::move(name), CronSchedule{*cron}, work};
     if (t.calculate_next(clockSptr->now()))
     {
       tasks_to_add.push_back(std::move(t));

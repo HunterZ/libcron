@@ -20,21 +20,19 @@ bool Cron::add_schedule(std::string        name,
                         const std::string& schedule,
                         Task::TaskFunction work)
 {
-  auto cron = CronData::create(schedule);
-  bool res  = cron.is_valid();
-  if (res)
-  {
-    tasks.lock_queue();
-    Task t{std::move(name), CronSchedule{cron}, work};
-    if (t.calculate_next(clockSptr->now()))
-    {
-      tasks.push(std::move(t));
-      tasks.sort();
-    }
-    tasks.release_queue();
-  }
+  auto cron{CronData::create(schedule)};
+  if (!cron) { return false; }
 
-  return res;
+  tasks.lock_queue();
+  Task t{std::move(name), CronSchedule{*cron}, work};
+  if (t.calculate_next(clockSptr->now()))
+  {
+    tasks.push(std::move(t));
+    tasks.sort();
+  }
+  tasks.release_queue();
+
+  return true;
 }
 
 void Cron::clear_schedules()
