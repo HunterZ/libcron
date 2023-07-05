@@ -33,13 +33,13 @@ std::unordered_map<std::string, CronData> CronData::cache{};
 
 CronData CronData::create(const std::string& cron_expression)
 {
-  CronData c;
-  auto     found = cache.find(cron_expression);
+  CronData    c;
+  const auto& found{cache.find(cron_expression)};
 
   if (found == cache.end())
   {
     c.parse(cron_expression);
-    cache[cron_expression] = c;
+    cache.insert({cron_expression, c});
   }
   else { c = found->second; }
 

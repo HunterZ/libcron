@@ -13,12 +13,10 @@ namespace libcron
 class CronData
 {
 public:
-  static const int             NUMBER_OF_LONG_MONTHS = 7;
+  static constexpr int         NUMBER_OF_LONG_MONTHS = 7;
   static const libcron::Months months_with_31[NUMBER_OF_LONG_MONTHS];
 
   static CronData create(const std::string& cron_expression);
-
-  CronData() = default;
 
   CronData(const CronData&) = default;
 
@@ -58,13 +56,15 @@ public:
   }
 
   template<typename T>
-  bool convert_from_string_range_to_number_range(const std::string& range,
-                                                 std::set<T>&       numbers);
+  static bool convert_from_string_range_to_number_range(
+    const std::string& range, std::set<T>& numbers);
 
   template<typename T>
   static std::string& replace_string_name_with_numeric(std::string& s);
 
 private:
+  CronData() = default;
+
   void parse(const std::string& cron_expression);
 
   template<typename T>
@@ -80,22 +80,22 @@ private:
                      std::set<T>&                    numbers);
 
   template<typename T>
-  bool add_number(std::set<T>& set, int32_t number);
+  static bool add_number(std::set<T>& set, int32_t number);
 
   template<typename T>
-  bool is_within_limits(int32_t low, int32_t high);
+  static bool is_within_limits(int32_t low, int32_t high);
 
   template<typename T>
-  bool get_range(const std::string& s, T& low, T& high);
+  static bool get_range(const std::string& s, T& low, T& high);
 
   template<typename T>
-  bool get_step(const std::string& s, uint8_t& start, uint8_t& step);
+  static bool get_step(const std::string& s, uint8_t& start, uint8_t& step);
 
   std::vector<std::string> split(const std::string& s, char token);
 
-  bool is_number(const std::string& s);
+  static bool is_number(const std::string& s);
 
-  bool is_between(int32_t value, int32_t low_limit, int32_t high_limit);
+  static bool is_between(int32_t value, int32_t low_limit, int32_t high_limit);
 
   bool validate_date_vs_months() const;
 
@@ -114,7 +114,7 @@ private:
   static std::unordered_map<std::string, CronData> cache;
 
   template<typename T>
-  void add_full_range(std::set<T>& set);
+  static void add_full_range(std::set<T>& set);
 };
 
 template<typename T>

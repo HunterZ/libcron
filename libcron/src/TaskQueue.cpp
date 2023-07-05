@@ -95,13 +95,13 @@ void TaskQueue::remove(const std::string& to_remove)
   lockSptr->unlock();
 }
 
-void TaskQueue::lock_queue()
+void TaskQueue::lock_queue() const
 {
   /* Do not allow to manipulate the Queue */
   lockSptr->lock();
 }
 
-void TaskQueue::release_queue()
+void TaskQueue::release_queue() const
 {
   /* Allow Access to the Queue Manipulating-Functions */
   lockSptr->unlock();

@@ -87,30 +87,27 @@ std::tuple<bool, std::string, std::string> Cron::add_schedule(
   std::vector<Task> tasks_to_add;
   tasks_to_add.reserve(name_schedule_map.size());
 
-  for (auto it = name_schedule_map.begin();
-       is_valid && it != name_schedule_map.end();
-       ++it)
+  for (auto it : name_schedule_map)
   {
     const auto& [name, schedule] = *it;
     auto cron                    = CronData::create(schedule);
     is_valid                     = cron.is_valid();
-    if (is_valid)
-    {
-      Task t{std::move(name), CronSchedule{cron}, work};
-      if (t.calculate_next(clockSptr->now()))
-      {
-        tasks_to_add.push_back(std::move(t));
-      }
-    }
-    else
+    if (!is_valid)
     {
       std::get<1>(res) = name;
       std::get<2>(res) = schedule;
+      break;
+    }
+
+    Task t{std::move(name), CronSchedule{cron}, work};
+    if (t.calculate_next(clockSptr->now()))
+    {
+      tasks_to_add.push_back(std::move(t));
     }
   }
 
   // Only add tasks and sort once if all elements in the map where valid
-  if (is_valid && tasks_to_add.size() > 0)
+  if (is_valid && !tasks_to_add.empty())
   {
     tasks.lock_queue();
     tasks.push(tasks_to_add);

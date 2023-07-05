@@ -86,14 +86,14 @@ public:
 
   // block other lock_queue() or thread safe method calls until the
   //  caller subsequently calls release_queue()
-  void lock_queue();
+  void lock_queue() const;
 
   // release lock so that other lock_queue() or thread safe method
   //  calls can occur without being (further) blocked
-  void release_queue();
+  void release_queue() const;
 
 private:
-  std::shared_ptr<ICronLock> lockSptr;
+  mutable std::shared_ptr<ICronLock> lockSptr;
   std::vector<Task>          c;
 };
 }  // namespace libcron

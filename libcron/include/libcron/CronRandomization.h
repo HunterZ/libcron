@@ -59,9 +59,8 @@ std::pair<bool, std::string> CronRandomization::get_random_in_range(
       right = cap(right, limit.first, limit.second);
     }
 
-    libcron::CronData cd;
-    std::set<T>       numbers;
-    res.first = cd.convert_from_string_range_to_number_range<T>(
+    std::set<T> numbers;
+    res.first = CronData::convert_from_string_range_to_number_range<T>(
       std::to_string(left) + "-" + std::to_string(right), numbers);
 
     // Remove items outside limits.

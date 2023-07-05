@@ -64,24 +64,22 @@ size_t Cron::tick(std::chrono::system_clock::time_point now)
   tasks.lock_queue();
   size_t res = 0;
 
-  if (!first_tick)
-  {
-    // Only allow time to flow if at least one second has passed since the last
-    // tick, either forward or backward.
-    auto           diff       = now - last_tick;
-    constexpr auto one_second = std::chrono::seconds{1};
-    if (diff < one_second && diff > -one_second) { now = last_tick; }
-  }
-
   if (first_tick) { first_tick = false; }
   else
   {
-    // https://linux.die.net/man/8/cron
+    constexpr auto one_second    = std::chrono::seconds{1};
     constexpr auto three_hours   = std::chrono::hours{3};
     auto           diff          = now - last_tick;
-    auto           absolute_diff = diff > diff.zero() ? diff : -diff;
-    if (absolute_diff >= three_hours)
+    auto           absolute_diff = diff >= diff.zero() ? diff : -diff;
+    if (absolute_diff < one_second)
     {
+      // Only allow time to flow if at least one second has passed since the
+      // last tick, either forward or backward.
+      now = last_tick;
+    }
+    else if (absolute_diff >= three_hours)
+    {
+      // https://linux.die.net/man/8/cron
       // Time changes of more than 3 hours are considered to be corrections to
       // the clock or timezone, and the new time is used immediately.
       for (auto& t : tasks.get_tasks()) { t.calculate_next(now); }
@@ -101,25 +99,19 @@ size_t Cron::tick(std::chrono::system_clock::time_point now)
 
   last_tick = now;
 
-  if (!tasks.empty())
+  for (auto& t : tasks.get_tasks())
   {
-    for (size_t i = 0; i < tasks.size(); i++)
+    if (t.is_expired(now))
     {
-      if (tasks.at(i).is_expired(now))
-      {
-        auto& t = tasks.at(i);
-        t.execute(now);
-
-        using namespace std::chrono_literals;
-        if (!t.calculate_next(now + 1s)) { tasks.remove(t); }
-
-        res++;
-      }
+      t.execute(now);
+      using namespace std::chrono_literals;
+      if (!t.calculate_next(now + 1s)) { tasks.remove(t); }
+      res++;
     }
-
-    // Only sort if at least one task was executed
-    if (res > 0) { tasks.sort(); }
   }
+
+  // Only sort if at least one task was executed
+  if (res > 0) { tasks.sort(); }
 
   tasks.release_queue();
   return res;
@@ -127,7 +119,7 @@ size_t Cron::tick(std::chrono::system_clock::time_point now)
 
 std::chrono::system_clock::duration Cron::time_until_next() const
 {
-  return (tasks.empty() ? std::numeric_limits<std::chrono::minutes>::max()
+  return (tasks.empty() ? std::chrono::system_clock::duration::max()
                         : tasks.top().time_until_expiry(clockSptr->now()));
 }
 
@@ -138,26 +130,31 @@ ICronClock& Cron::get_clock() const
 
 void Cron::recalculate_schedule()
 {
+  tasks.lock_queue();
   for (auto& t : tasks.get_tasks())
   {
     using namespace std::chrono_literals;
     // Ensure that next schedule is in the future
     t.calculate_next(clockSptr->now() + 1s);
   }
+  tasks.release_queue();
 }
 
 void Cron::get_time_until_expiry_for_tasks(
   std::vector<std::tuple<std::string, std::chrono::system_clock::duration> >&
     status) const
 {
-  auto now = clockSptr->now();
+  const auto& now{clockSptr->now()};
+  const auto& taskList{tasks.get_tasks()};
   status.clear();
+  status.reserve(taskList.size());
 
-  std::for_each(tasks.get_tasks().cbegin(),
-                tasks.get_tasks().cend(),
-                [&status, &now](const Task& t) {
-                  status.emplace_back(t.get_name(), t.time_until_expiry(now));
-                });
+  tasks.lock_queue();
+  for (auto& t : tasks.get_tasks())
+  {
+    status.emplace_back(t.get_name(), t.time_until_expiry(now));
+  }
+  tasks.release_queue();
 }
 
 std::ostream& operator<<(std::ostream& stream, const Cron& c)

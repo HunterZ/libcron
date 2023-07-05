@@ -90,8 +90,7 @@ std::tuple<bool, std::string> CronRandomization::parse(
     if (selected_value == -1)
     {
       // Month is not specific, get the range.
-      CronData cr;
-      res &= cr.convert_from_string_range_to_number_range<Months>(
+      res &= CronData::convert_from_string_range_to_number_range<Months>(
         all_sections[5].str(), month_range);
     }
     else { month_range.emplace(static_cast<Months>(selected_value)); }

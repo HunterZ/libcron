@@ -12,6 +12,24 @@ using namespace std::chrono;
 
 namespace libcron
 {
+// UTCClock
+std::chrono::system_clock::time_point UTCClock::now() const
+{
+  return std::chrono::system_clock::now();
+}
+
+std::chrono::seconds UTCClock::utc_offset(
+  std::chrono::system_clock::time_point) const
+{
+  return 0s;
+}
+
+// LocalClock
+std::chrono::system_clock::time_point LocalClock::now() const
+{
+  const auto& now{std::chrono::system_clock::now()};
+  return now + utc_offset(now);
+}
 
 std::chrono::seconds LocalClock::utc_offset(
   std::chrono::system_clock::time_point now) const
